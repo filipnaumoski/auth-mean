@@ -10,7 +10,7 @@ router.post("", (req, res, next) => {
     content: req.body.content
   });
   post.save().then(createdPost => {
-    res.status(201).json({
+    res.status(200).json({
       message: "Post added successfully",
       postId: createdPost._id
     });
