@@ -2,11 +2,11 @@
   <mat-spinner *ngIf="isLoading"></mat-spinner>
   <form (submit)="onSignUp(loginForm)" #loginForm="ngForm" *ngIf="!isLoading">
     <mat-form-field>
-      <input matInput type="text" name="first-name" ngModel placeholder="First Name" #firstNameInput="ngModel" required first-name>
+      <input matInput type="text" name="first_name" ngModel placeholder="First Name" #firstNameInput="ngModel" required first_name>
       <mat-error *ngIf="firstNameInput.invalid">Please enter a valid first name.</mat-error>
     </mat-form-field>
     <mat-form-field>
-      <input matInput type="text" name="last-name" ngModel placeholder="Last Name" #lastNameInput="ngModel" required last-name>
+      <input matInput type="text" name="last_name" ngModel placeholder="Last Name" #lastNameInput="ngModel" required last_name>
       <mat-error *ngIf="lastNameInput.invalid">Please enter a valid last name.</mat-error>
     </mat-form-field>
     <mat-form-field>
