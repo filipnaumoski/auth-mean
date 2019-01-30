@@ -29,7 +29,7 @@ router.put("/:id", checkAuth, (req, res, next) => {
   });
 });
 
-router.get("", checkAuth, (req, res, next) => {
+router.get("", (req, res, next) => {
   Post.find().then(documents => {
     res.status(200).json({
       message: "Posts fetched successfully!",
