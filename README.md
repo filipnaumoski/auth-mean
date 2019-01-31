@@ -1,2 +1,2 @@
 # auth-mean
-oAuth Microservice with MEAN
+User Authentication and Authorization with MEAN
