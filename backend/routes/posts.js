@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const isValid = MIME_TYPE_MAP[file.mimetype];
     let error = new Error("Invalid mime type");
-    if(isValid) {
+    if (isValid) {
       error = null
     }
     cb(error, "backend/images");
@@ -28,42 +28,64 @@ const storage = multer.diskStorage({
   }
 })
 
-router.post("", multer({storage:storage}).single("image"),checkAuth, (req, res, next) => {
+router.post("", checkAuth, multer({
+  storage: storage
+}).single("image"), (req, res, next) => {
+  const url = req.protocol + '://' + req.get("host");
   const post = new Post({
     title: req.body.title,
     content: req.body.content,
-    creator: req.userData.userId
+    creator: req.userData.userId,
+    imagePath: url + "/images/" + req.file.filename
   });
   post.save().then(createdPost => {
     res.status(200).json({
       message: "Post added successfully",
-      postId: createdPost._id
+      post: {
+        ...createdPost,
+        id: createdPost._id
+      }
     });
   });
 });
 
-router.put("/:id", checkAuth, (req, res, next) => {
-  const post = new Post({
-    _id: req.body.id,
-    title: req.body.title,
-    content: req.body.content,
-    creator: req.userData.userId
-  });
-  Post.updateOne({
-    _id: req.params.id,
-    creator: req.userData.userId
-  }, post).then(result => {
-    if (result.nModified > 0) {
-      res.status(200).json({
-        message: "Update successful!"
-      });
-    } else {
-      res.status(401).json({
-        message: "Not authorized"
-      });
+router.put(
+  "/:id",
+  checkAuth,
+  multer({
+    storage: storage
+  }).single("image"),
+  (req, res, next) => {
+    let imagePath = req.body.imagePath;
+    if (req.file) {
+      const url = req.protocol + "://" + req.get("host");
+      imagePath = url + "/images/" + req.file.filename;
     }
-  });
-});
+    const post = new Post({
+      _id: req.body.id,
+      title: req.body.title,
+      content: req.body.content,
+      imagePath: imagePath,
+      creator: req.userData.userId
+    });
+    Post.updateOne({
+        _id: req.params.id,
+        creator: req.userData.userId
+      },
+      post
+    ).then(result => {
+      if (result.nModified > 0) {
+        res.status(200).json({
+          message: "Update successful!"
+        });
+      } else {
+        res.status(401).json({
+          message: "Not authorized!"
+        });
+      }
+    });
+  }
+);
 
 router.get("", (req, res, next) => {
   Post.find().then(documents => {
