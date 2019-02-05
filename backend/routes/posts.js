@@ -46,6 +46,10 @@ router.post("", checkAuth, multer({
         id: createdPost._id
       }
     });
+  }).catch(error => {
+    res.status(500).json({
+      message: "Creating a post failed!"
+    })
   });
 });
 
@@ -80,10 +84,15 @@ router.put(
         });
       } else {
         res.status(401).json({
-          message: "Not authorized!"
+          message: "You are not authenticated!"
         });
       }
-    });
+    })
+    .catch(error => {
+      res.status(500).json({
+        message: "Couldn't update post!"
+      })
+    });;
   }
 );
 
@@ -92,21 +101,25 @@ router.get("", (req, res, next) => {
   const currentPage = +req.query.page;
   const postQuery = Post.find();
   let fetchedPosts;
-  if(pageSize && currentPage) {
+  if (pageSize && currentPage) {
     postQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
   }
   postQuery
-  .then(documents =>{
-    fetchedPosts = documents
-    return Post.count();
-  })
-  .then(count => {
-    res.status(200).json({
-      message: "Posts fetched successfully!",
-      posts: fetchedPosts,
-      maxPosts: count
+    .then(documents => {
+      fetchedPosts = documents
+      return Post.count();
+    })
+    .then(count => {
+      res.status(200).json({
+        message: "Posts fetched successfully!",
+        posts: fetchedPosts,
+        maxPosts: count
+      });
+    }).catch(error => {
+      res.status(500).json({
+        message: "Fetching posts failed!"
+      })
     });
-  });
 });
 
 router.get("/:id", checkAuth, (req, res, next) => {
@@ -118,6 +131,10 @@ router.get("/:id", checkAuth, (req, res, next) => {
         message: "Post not found!"
       });
     }
+  }).catch(error => {
+    res.status(500).json({
+      message: "Fetching post failed!"
+    })
   });
 });
 
@@ -132,9 +149,13 @@ router.delete("/:id", checkAuth, (req, res, next) => {
       });
     } else {
       res.status(401).json({
-        message: "Not authorized"
+        message: "You are not authenticated!"
       });
     }
+  }).catch(error => {
+    res.status(500).json({
+      message: "Deleting post failed!"
+    })
   });
 });
 
